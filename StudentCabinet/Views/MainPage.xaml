@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:StudentCabinet.ViewModels"
+             xmlns:m="clr-namespace:StudentCabinet.Models"
+             xmlns:conv="clr-namespace:StudentCabinet.Converters"
+             x:Class="StudentCabinet.Views.MainPage"
+             x:DataType="vm:StudentViewModel"
+             Title="Особистий кабінет студента">
+
+    <ContentPage.BindingContext>
+        <vm:StudentViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <conv:ScoreToColorConverter x:Key="ScoreToColor" Threshold="4.0" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" Padding="20" RowSpacing="12">
+        <VerticalStackLayout Spacing="10">
+            <Label Text="Дані студента" FontSize="20" FontAttributes="Bold" />
+
+            <Entry AutomationId="FullNameEntry"
+                   Text="{Binding FullName, Mode=TwoWay}"
+                   Placeholder="ПІБ студента" />
+
+            <Entry AutomationId="GroupEntry"
+                   Text="{Binding Group, Mode=TwoWay}"
+                   Placeholder="Група" />
+
+            <Label Text="{Binding AverageScore, StringFormat='Середній бал: {0:F1}'}" />
+            <Slider AutomationId="ScoreSlider"
+                    Minimum="0" Maximum="5"
+                    Value="{Binding AverageScore, Mode=TwoWay}" />
+
+            <Label AutomationId="GreetingLabel"
+                   Text="{Binding Greeting, Mode=OneWay}"
+                   FontSize="16" FontAttributes="Bold" />
+
+            <Button AutomationId="AddButton"
+                    Text="Додати студента"
+                    Command="{Binding AddStudentCommand}" />
+
+            <Label Text="Список студентів" FontSize="18" FontAttributes="Bold" Margin="0,8,0,0" />
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="1"
+                        AutomationId="StudentsList"
+                        ItemsSource="{Binding Students}">
+            <CollectionView.EmptyView>
+                <Label Text="Список порожній" TextColor="Gray" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="m:Student">
+                    <Border Margin="0,4" Padding="10" StrokeShape="RoundRectangle 8">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding FullName}" FontAttributes="Bold" />
+                                <Label Text="{Binding Group, StringFormat='Група: {0}'}" />
+                                <Label Text="{Binding AverageScore, StringFormat='Середній бал: {0:F1}'}"
+                                       TextColor="{Binding AverageScore, Converter={StaticResource ScoreToColor}}" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="Детальніше"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentViewModel}}, Path=OpenDetailsCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
